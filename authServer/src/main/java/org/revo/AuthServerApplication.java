@@ -11,12 +11,14 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
+import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
@@ -69,7 +71,9 @@ class OAuth2ServerConfig {
         @Override
         public void configure(HttpSecurity http) throws Exception {
 
-            http.authorizeRequests().antMatchers("/user").authenticated();
+            http
+                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                    .and().authorizeRequests().antMatchers("/user").authenticated();
         }
     }
 
@@ -85,11 +89,15 @@ class OAuth2ServerConfig {
         @Override
         public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
             clients.inMemory().withClient("revo")
-                    .resourceIds(RESOURCE_IDS)
                     .authorizedGrantTypes("authorization_code", "implicit")
                     .authorities("ROLE_CLIENT")
                     .scopes("read", "write")
                     .secret("revo");
+        }
+
+        @Override
+        public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
+            security.checkTokenAccess("isAuthenticated()");
         }
 
         @Bean

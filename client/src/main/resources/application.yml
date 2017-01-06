@@ -1,9 +1,16 @@
+server:
+  context-path: /client
+  port: 9999
+
 security:
   oauth2:
     client:
       client-id: revo
       client-secret: revo
-      access-token-uri: http://localhost:9999/uaa/oauth/token
-      user-authorization-uri: http://localhost:9999/uaa/oauth/authorize
+      access-token-uri: http://localhost:8080/oauth/token
+      user-authorization-uri: http://localhost:8080/oauth/authorize
     resource:
-      user-info-uri: http://localhost:9999/uaa/user
+      token-info-uri: http://localhost:8080/oauth/check_token
+logging:
+  level:
+    org.springframework: DEBUG

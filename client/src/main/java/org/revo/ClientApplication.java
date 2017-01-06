@@ -11,7 +11,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 @SpringBootApplication
 public class ClientApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(ClientApplication.class, args);
     }
