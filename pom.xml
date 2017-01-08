@@ -13,5 +13,6 @@
     <modules>
         <module>authServer</module>
         <module>client</module>
+        <module>resource</module>
     </modules>
 </project>
