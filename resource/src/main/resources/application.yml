@@ -1,0 +1,11 @@
+server:
+  context-path:
+  port: 8888
+
+security:
+  oauth2:
+    client:
+      client-id: revo
+      client-secret: revo
+    resource:
+      token-info-uri: http://localhost:8080/oauth/check_token

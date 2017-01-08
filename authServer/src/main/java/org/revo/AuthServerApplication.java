@@ -5,7 +5,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -29,19 +28,19 @@ import org.springframework.security.oauth2.provider.token.store.InMemoryTokenSto
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.ModelAndView;
 
 @SpringBootApplication
-
 public class AuthServerApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(AuthServerApplication.class, args);
     }
+
 }
 
-@Order(1)
 @Configuration
 @EnableWebSecurity
 class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -64,17 +63,6 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 @Configuration
 class OAuth2ServerConfig {
-    @Configuration
-    @EnableResourceServer
-    protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
-        @Override
-        public void configure(HttpSecurity http) throws Exception {
-
-            http
-                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                    .and().authorizeRequests().antMatchers("/user").authenticated();
-        }
-    }
 
     @Configuration
     @EnableAuthorizationServer
