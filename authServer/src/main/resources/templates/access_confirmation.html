@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>home</title>
+</head>
+<body>
+<p th:text="${client.getClientId()}"></p>
+
+<form th:action="@{/oauth/authorize}" name="accept" method="post">
+    <div th:each="u:${client.getScope()}">
+        <label th:for="${u}">
+            <span th:text="${u}"></span>
+        </label>
+        <input th:id="${u}" type="checkbox" th:name="|scope.${u}|" value="true"/>
+    </div>
+    <input type="hidden" name="user_oauth_approval" value="true"/>
+    <input type="submit" value="submit"/>
+</form>
+<form th:action="@{/oauth/authorize}" name="deny" method="post">
+    <input type="hidden" name="user_oauth_approval" value="false"/>
+    <input type="submit" value="deny"/>
+</form>
+</body>
+</html>

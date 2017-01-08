@@ -9,8 +9,6 @@ security:
       client-secret: revo
       access-token-uri: http://localhost:8080/oauth/token
       user-authorization-uri: http://localhost:8080/oauth/authorize
+      scope: read
     resource:
       token-info-uri: http://localhost:8080/oauth/check_token
-logging:
-  level:
-    org.springframework: DEBUG

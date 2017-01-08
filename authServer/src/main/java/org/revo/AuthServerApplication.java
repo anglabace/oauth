@@ -19,15 +19,21 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
-import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.AuthorizationRequest;
+import org.springframework.security.oauth2.provider.ClientDetails;
+import org.springframework.security.oauth2.provider.ClientDetailsService;
+import org.springframework.security.oauth2.provider.approval.ApprovalStore;
+import org.springframework.security.oauth2.provider.approval.TokenApprovalStore;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.security.Principal;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.servlet.ModelAndView;
 
 @SpringBootApplication
+
 public class AuthServerApplication {
 
     public static void main(String[] args) {
@@ -58,16 +64,9 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 @Configuration
 class OAuth2ServerConfig {
-    private static final String RESOURCE_IDS = "revo";
-
     @Configuration
     @EnableResourceServer
     protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
-        @Override
-        public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
-            resources.resourceId(RESOURCE_IDS);
-        }
-
         @Override
         public void configure(HttpSecurity http) throws Exception {
 
@@ -83,6 +82,13 @@ class OAuth2ServerConfig {
         @Autowired
         TokenStore tokenStore;
 
+        @Bean
+        public ApprovalStore approvalStore() throws Exception {
+            TokenApprovalStore store = new TokenApprovalStore();
+            store.setTokenStore(tokenStore);
+            return store;
+        }
+
         @Autowired
         private AuthenticationManager authenticationManager;
 
@@ -92,6 +98,7 @@ class OAuth2ServerConfig {
                     .authorizedGrantTypes("authorization_code", "implicit")
                     .authorities("ROLE_CLIENT")
                     .scopes("read", "write")
+                    .autoApprove("read")
                     .secret("revo");
         }
 
@@ -111,13 +118,18 @@ class OAuth2ServerConfig {
                     .authenticationManager(authenticationManager);
         }
     }
-
 }
 
-@RestController
-class api {
-    @RequestMapping("/user")
-    public Principal user(Principal principal) {
-        return principal;
+@Controller
+@SessionAttributes(types = AuthorizationRequest.class)
+class AccessConfirmationController {
+    @Autowired
+    private ClientDetailsService clientDetailsService;
+
+    @RequestMapping("/oauth/confirm_access")
+    public ModelAndView getAccessConfirmation(@ModelAttribute AuthorizationRequest clientAuth) {
+        ClientDetails client = clientDetailsService.loadClientByClientId(clientAuth.getClientId());
+        return new ModelAndView("access_confirmation").addObject("auth_request", clientAuth).addObject("client", client);
     }
+
 }
