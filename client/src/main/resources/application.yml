@@ -12,3 +12,4 @@ security:
       scope: read
     resource:
       user-info-uri: http://localhost:8888/user
+      token-info-uri: http://localhost:8080/oauth/check_token
